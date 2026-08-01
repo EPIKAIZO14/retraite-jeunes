@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des inscrits - Retraite</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; background-color: #1e1e1e; padding: 25px; border-radius: 10px; border: 1px solid #333; }
+        h2 { color: #3b82f6; text-align: center; margin-bottom: 20px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .btn-excel { background-color: #198754; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+        .btn-excel:hover { background-color: #146c43; }
+        .btn-logout { background-color: #dc3545; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+        .btn-logout:hover { background-color: #bb2d3b; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+        th { background-color: #2a2a2a; color: #3b82f6; }
+        tr:hover { background-color: #282828; }
+        .actions { display: flex; gap: 8px; }
+        .btn-edit { background-color: #0d6efd; color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; }
+        .btn-edit:hover { background-color: #0b5ed7; }
+        .btn-delete { background-color: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-delete:hover { background-color: #bb2d3b; }
+        .alert { padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; }
+        .alert-success { background-color: #1b4332; color: #d8f3dc; }
+        .alert-info { background-color: #0c4a6e; color: #e0f2fe; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="top-bar">
+        <h2>Liste des Jeunes Inscrits</h2>
+        <div>
+            <a href="/exporter_excel" class="btn-excel">📊 Télécharger Excel (.csv)</a>
+            <a href="/logout" class="btn-logout">Déconnexion</a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>Nom</th>
+                <th>Post-nom</th>
+                <th>Prénom</th>
+                <th>Genre</th>
+                <th>Téléphone</th>
+                <th>Adresse</th
+                <th>Montant payé</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for j in jeunes %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ j['nom'] }}</td>
+                <td>{{ j['postnom'] }}</td>
+                <td>{{ j['prenom'] }}</td>
+                <td>{{ j['genre'] }}</td>
+                <td>{{ j['telephone'] }}</td>
+                <td>{{ j['adresse'] }}</td>
+                 <td>{{ j[7] }} $</td>
+                <td class="actions">
+                    <a href="/modifier/{{ j['id'] }}" class="btn-edit">Modifier</a>
+                    <form action="/supprimer/{{ j['id'] }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet inscrit ?');" style="display:inline;">
+                        <button type="submit" class="btn-delete">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center;">Aucun inscrit pour le moment.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
