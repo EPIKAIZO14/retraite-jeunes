@@ -70,7 +70,7 @@ def guide():
 # ---------------------------------------------------------
 # ROUTES PROTÉGÉES (GESTION & EXPORT)
 # ---------------------------------------------------------
- @app.route('/liste')
+@app.route('/liste')
 def liste():
     if not session.get('connecte'):
         return "Accès refusé ! Vous n'avez pas l'autorisation.", 403
