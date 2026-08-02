@@ -123,7 +123,7 @@
 
     <div class="titre-eglise">PAROLE ETERNEL NGIRI NGIRI</div>
 
-    <img src="/image.png" alt="Logo PAROLE" class="logo" 
+    <img src="{{ url_for('static', filename='image.png') }}" alt="Logo PAROLE" class="logo">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
