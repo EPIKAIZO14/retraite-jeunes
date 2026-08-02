@@ -80,16 +80,6 @@ def liste():
     return render_template('liste.html', jeunes=enregistrements)
  
 @app.route('/exporter_excel')
-@app.route('/liste')
-def liste():
-    if not session.get('connecte'):
-        return redirect(url_for('login'))
-    
-    response = supabase.table("jeunes").select("*").execute()
-    enregistrements = response.data
-    return render_template('liste.html', jeunes=enregistrements)
-
-@app.route('/exporter_excel')
 def exporter_excel():
     if not session.get('connecte'):
         return "Accès refusé !", 403
