@@ -137,13 +137,11 @@ def modifier(id):
 def supprimer(id):
     if not session.get('connecte'):
         return "Accès refusé !", 403
-
-   supabase.table("jeunes").delete().eq("id", id).execute()
-
+    
+    supabase.table("jeunes").delete().eq("id", id).execute()
     flash("Inscrit supprimé avec succès !", "success")
     return redirect(url_for('liste'))
-
-
+    
 @app.route('/image.png')
 def servir_logo():
     return send_from_directory('.', 'image.png')
