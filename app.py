@@ -36,7 +36,7 @@ def ajouter():
         flash("Enregistrement effectué avec succès ! Pense à finaliser les frais.", "success")
          return redirect(url_for('index'))
     except Exception as e:
-        flash(f"Erreur : {e}", "danger")
+         flash(f"Erreur : {e}", "danger")
         return redirect(url_for('index'))
 
 # ---------------------------------------------------------
