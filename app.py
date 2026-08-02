@@ -80,11 +80,22 @@ def liste():
     return render_template('liste.html', jeunes=enregistrements)
  
 @app.route('/exporter_excel')
+@app.route('/liste')
+def liste():
+    if not session.get('connecte'):
+        return redirect(url_for('login'))
+    
+    response = supabase.table("jeunes").select("*").execute()
+    enregistrements = response.data
+    return render_template('liste.html', jeunes=enregistrements)
+
+@app.route('/exporter_excel')
 def exporter_excel():
     if not session.get('connecte'):
         return "Accès refusé !", 403
-        response =supabase.table("jeunes").select("*").execute()
-         enregistrements = response.data
+    
+    response = supabase.table("jeunes").select("*").execute()
+    enregistrements = response.data
 
     si = StringIO()
     cw = csv.writer(si, delimiter=';')
@@ -99,7 +110,6 @@ def exporter_excel():
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=Liste_Jeunes_Retraite.csv"}
     )
-
 
 @app.route('/modifier/<int:id>', methods=['GET', 'POST'])
 def modifier(id):
