@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un Inscrit</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background-color: #1e1e1e; padding: 30px; border-radius: 10px; width: 100%; max-width: 450px; border: 1px solid #333; }
+        h2 { color: #3b82f6; text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #bbb; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; background-color: #2a2a2a; color: white; border: 1px solid #444; border-radius: 6px; box-sizing: border-box; }
+        .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 12px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #2563eb; }
+        .btn-cancel { flex: 1; padding: 12px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-weight: bold; text-decoration: none; text-align: center; }
+        .btn-cancel:hover { background-color: #5c636a; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Modifier l'Inscrit</h2>
+
+    <form action="/modifier/{{ jeune['id'] }}" method="POST">
+        <div class="form-group">
+            <label>Nom</label>
+            <input type="text" name="nom" value="{{ jeune['nom'] }}" required>
+        </div>
+        <div class="form-group">
+            <label>Post-nom</label>
+            <input type="text" name="postnom" value="{{ jeune['postnom'] }}" required>
+        </div>
+        <div class="form-group">
+            <label>Prénom</label>
+            <input type="text" name="prenom" value="{{ jeune['prenom'] }}" required>
+        </div>
+        <div class="form-group">
+            <label>Genre</label>
+            <select name="genre" required>
+                <option value="M" {% if jeune['genre'] == 'M' %}selected{% endif %}>Masculin</option>
+                <option value="F" {% if jeune['genre'] == 'F' %}selected{% endif %}>Féminin</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" name="telephone" value="{{ jeune['telephone'] }}" required>
+        </div>
+        <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" name="adresse" value="{{ jeune['adresse'] }}" required>
+        </div>
+
+        <div class="btn-container">
+            <button type="submit">Enregistrer</button>
+            <a href="/liste" class="btn-cancel">Annuler</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

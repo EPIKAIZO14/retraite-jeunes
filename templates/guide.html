@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Guide de la Retraite - Objets à apporter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>🎉 Inscription réussie !</h2>
+        <p class="success-msg">Pensez à finaliser les frais de participation de 15$, payables chez Mokambi Elvis.</p>
+        
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #444;">
+
+        <h3>🎒 Guide du Retraitant : Ce qu'il faut apporter</h3>
+        <p>Pour passer un excellent moment de communion, voici la liste des affaires à ne pas oublier :</p>
+        
+        <ul style="text-align: left; margin: 20px auto; display: inline-block; line-height: 1.8;">
+            <li>📖 <strong>Votre Bible</strong> et un carnet de notes avec un bic</li>
+            <li>👕 Vêtements descents et de rechange</li>
+            <li>🪥 Nécessaire de toilette (savon, brosse à dents, etc.)</li>
+            <li>🛏️ Drap de lit ou couverture légère</li>
+            <li>💧 Une bouteille d'eau personnelle</li>
+        </ul>
+
+        <div style="margin-top: 30px;">
+            <a href="{{ url_for('index') }}" class="btn" style="text-decoration: none; padding: 10px 20px; background-color: #007bff; color: white; border-radius: 5px;">Retour à l'accueil</a>
+        </div>
+    </div>
+</body>
+</html>
