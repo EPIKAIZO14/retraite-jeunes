@@ -116,7 +116,7 @@ def modifier(id):
     if not session.get('connecte'):
         return "Accès refusé !", 403
 
-   if request.method == 'POST':
+    if request.method == 'POST':
         supabase.table("jeunes").update({
             "nom": request.form.get('nom'),
             "postnom": request.form.get('postnom'),
@@ -125,11 +125,11 @@ def modifier(id):
             "telephone": request.form.get('telephone'),
             "adresse": request.form.get('adresse')
         }).eq("id", id).execute()
-        
+
         flash("Informations modifiées avec succès !", "success")
         return redirect(url_for('liste'))
 
-           response = supabase.table("jeunes").select("*").eq("id", id).execute()
+    response = supabase.table("jeunes").select("*").eq("id", id).execute()
     jeune = response.data[0] if response.data else None
     return render_template('modifier.html', jeune=jeune)
 
