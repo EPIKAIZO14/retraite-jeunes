@@ -73,10 +73,12 @@ def guide():
 def liste():
     if not session.get('connecte'):
         return "Accès refusé ! Vous n'avez pas l'autorisation.", 403
-
+    
+    # On récupère les jeunes depuis Supabase
     response = supabase.table("jeunes").select("*").execute()
-    enregistrements = response.data
-    return render_template('liste.html', jeunes=enregistrements)
+    jeunes = response.data if hasattr(response, 'data') else response
+    
+    return render_template('liste.html', jeunes=jeunes)
  
 @app.route('/exporter_excel')
 def exporter_excel():
