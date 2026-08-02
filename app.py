@@ -134,8 +134,8 @@ def supprimer(id):
     
 @app.route('/image.png')
 def servir_logo():
-    return send_from_directory('.', 'image.png')
-
+    dossier_actuel = os.path.abspath(os.path.dirname(__file__))
+    return send_from_directory(dossier_actuel, 'image.png')
 
 if __name__ == '__main__':
     app.run(debug=True)
