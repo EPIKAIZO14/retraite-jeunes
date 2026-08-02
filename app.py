@@ -1,142 +1,107 @@
-import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from supabase import create_client, Client
-from io import StringIO
-import csv
+import openpyxl
+import io
 
 app = Flask(__name__)
-app.secret_key = 'retraite_jeunes_cle_sec్రete'
-MOT_DE_PASSE_ADMIN = "1234"
+app.secret_key = 'cle_secrete_super_securisee'
 
-url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+SUPABASE_URL = "https://solmrldhvdqnsvpnqhxg.supabase.co"
+SUPABASE_KEY = "sb_publishable_zfePN75CDKoVXkq67Mhxvw_KiECA9KC"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# Mot de passe pour accéder à la liste sécurisée
+ADMIN_PASSWORD = "admin"
 
-# ---------------------------------------------------------
-# ROUTES PUBLIQUES
-# ---------------------------------------------------------
-
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
-
-
-@app.route('/ajouter', methods=['POST'])
-def ajouter():
-    try:
-        supabase.table("jeunes").insert({
+    success = False
+    if request.method == 'POST':
+        data = {
             "nom": request.form.get('nom'),
-            "postnom": request.form.get('postnom'),
+            "post_nom": request.form.get('post_nom'),
             "prenom": request.form.get('prenom'),
             "genre": request.form.get('genre'),
             "telephone": request.form.get('telephone'),
             "adresse": request.form.get('adresse')
-        }).execute()
-        flash("Enregistrement effectué avec succès ! Pense à finaliser les frais.", "success")
-        return redirect(url_for('index'))
-    except Exception as e:
-        flash(f"Erreur : {e}", "danger")
-        return redirect(url_for('index'))
-# ---------------------------------------------------------
-# ROUTES ADMINISTRATION & AUTHENTIFICATION
-# ---------------------------------------------------------
+        }
+        supabase.table("gestion").insert(data).execute()
+        success = True
+    return render_template('index.html', success=success)
 
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
     if request.method == 'POST':
-        mdp_saisi = request.form.get('password')
-        if mdp_saisi == MOT_DE_PASSE_ADMIN:
-            session['connecte'] = True
+        if request.form.get('password') == ADMIN_PASSWORD:
+            session['admin'] = True
             return redirect(url_for('liste'))
         else:
-            flash("Mot de passe incorrect !", "danger")
-
-    return render_template('admin.html')
-
+            error = "Mot de passe incorrect !"
+    return render_template('login.html', error=error)
 
 @app.route('/logout')
 def logout():
-    session.pop('connecte', None)
-    flash("Vous êtes déconnecté.", "info")
-    return redirect(url_for('admin'))
+    session.pop('admin', None)
+    return redirect(url_for('login'))
 
-@app.route('/guide')
-def guide():
-    return render_template('guide.html')
-
-
-# ---------------------------------------------------------
-# ROUTES PROTÉGÉES (GESTION & EXPORT)
-# ---------------------------------------------------------
 @app.route('/liste')
 def liste():
-    if not session.get('connecte'):
-        return "Accès refusé ! Vous n'avez pas l'autorisation.", 403
+    if not session.get('admin'):
+        return redirect(url_for('login'))
     
-    # On récupère les jeunes depuis Supabase
-    response = supabase.table("jeunes").select("*").execute()
-    jeunes = response.data if hasattr(response, 'data') else response
+    response = supabase.table("gestion").select("*").execute()
+    rows = response.data if response.data else []
+    return render_template('liste.html', rows=rows)
+
+@app.route('/download-excel')
+def download_excel():
+    if not session.get('admin'):
+        return redirect(url_for('login'))
     
-    return render_template('liste.html', jeunes=jeunes)
- 
-@app.route('/exporter_excel')
-def exporter_excel():
-    if not session.get('connecte'):
-        return "Accès refusé !", 403
-    
-    response = supabase.table("jeunes").select("*").execute()
-    enregistrements = response.data
+    response = supabase.table("gestion").select("*").execute()
+    rows = response.data if response.data else []
 
-    si = StringIO()
-    cw = csv.writer(si, delimiter=';')
-    cw.writerow(['ID', 'Nom', 'Post-nom', 'Prénom', 'Genre', 'Téléphone', 'Adresse'])
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Jeunes Inscrits"
 
-    for j in enregistrements:
-        cw.writerow([j['id'], j['nom'], j['postnom'], j['prenom'], j['genre'], j['telephone'], j['adresse']])
+    headers = ["N°", "Nom", "Post-nom", "Prénom", "Genre", "Téléphone", "Adresse"]
+    ws.append(headers)
 
-    output = si.getvalue()
-    return Response(
-        "\ufeff" + output,
-        mimetype="text/csv",
-        headers={"Content-disposition": "attachment; filename=Liste_Jeunes_Retraite.csv"}
+    for col in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col)
+        cell.font = openpyxl.styles.Font(bold=True, color="FFFFFF")
+        cell.fill = openpyxl.styles.PatternFill(start_color="1E3A8A", end_color="1E3A8A", fill_type="solid")
+
+    for index, row in enumerate(rows, start=1):
+        ws.append([
+            index,
+            row.get("nom"),
+            row.get("post_nom"),
+            row.get("prenom"),
+            row.get("genre"),
+            row.get("telephone"),
+            row.get("adresse")
+        ])
+
+    file_stream = io.BytesIO()
+    wb.save(file_stream)
+    file_stream.seek(0)
+
+    return send_file(
+        file_stream,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='liste_jeunes_inscrits.xlsx'
     )
 
-@app.route('/modifier/<int:id>', methods=['GET', 'POST'])
-def modifier(id):
-    if not session.get('connecte'):
-        return "Accès refusé !", 403
-
-    if request.method == 'POST':
-        supabase.table("jeunes").update({
-            "nom": request.form.get('nom'),
-            "postnom": request.form.get('postnom'),
-            "prenom": request.form.get('prenom'),
-            "genre": request.form.get('genre'),
-            "telephone": request.form.get('telephone'),
-            "adresse": request.form.get('adresse')
-        }).eq("id", id).execute()
-
-        flash("Informations modifiées avec succès !", "success")
-        return redirect(url_for('liste'))
-
-    response = supabase.table("jeunes").select("*").eq("id", id).execute()
-    jeune = response.data[0] if response.data else None
-    return render_template('modifier.html', jeune=jeune)
-
-@app.route('/supprimer/<int:id>', methods=['POST'])
+@app.route('/supprimer/<int:id>')
 def supprimer(id):
-    if not session.get('connecte'):
-        return "Accès refusé !", 403
-    
-    supabase.table("jeunes").delete().eq("id", id).execute()
-    flash("Inscrit supprimé avec succès !", "success")
+    if not session.get('admin'):
+        return redirect(url_for('login'))
+    supabase.table("gestion").delete().eq("id", id).execute()
     return redirect(url_for('liste'))
-    
-@app.route('/image.png')
-def servir_logo():
-    dossier_actuel = os.path.abspath(os.path.dirname(__file__))
-    return send_from_directory(dossier_actuel, 'image.png')
 
 if __name__ == '__main__':
     app.run(debug=True)
