@@ -83,9 +83,8 @@ def liste():
 def exporter_excel():
     if not session.get('connecte'):
         return "Accès refusé !", 403
-
-  response = supabase.table("jeunes").select("*").execute()
-    enregistrements = response.data
+        response =supabase.table("jeunes").select("*").execute()
+         enregistrements = response.data
 
     si = StringIO()
     cw = csv.writer(si, delimiter=';')
